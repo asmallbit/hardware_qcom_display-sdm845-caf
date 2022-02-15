@@ -26,6 +26,10 @@
 
 #define __CLASS__ "HWCLayer"
 
+#ifdef FOD_ZPOS
+#define FOD_PRESSED_LAYER_ZORDER 0x20000000u
+#endif
+
 namespace sdm {
 
 std::atomic<hwc2_layer_t> HWCLayer::next_id_(1);
@@ -515,6 +519,12 @@ HWC2::Error HWCLayer::SetLayerVisibleRegion(hwc_region_t visible) {
 
 HWC2::Error HWCLayer::SetLayerZOrder(uint32_t z) {
   if (z_ != z) {
+#ifdef FOD_ZPOS
+    if (z & FOD_PRESSED_LAYER_ZORDER) {
+      fod_pressed_ = true;
+      z &= ~FOD_PRESSED_LAYER_ZORDER;
+    }
+#endif
     geometry_changes_ |= kZOrder;
     z_ = z;
   }
